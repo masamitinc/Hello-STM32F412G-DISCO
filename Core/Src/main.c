@@ -41,6 +41,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+DFSDM_Channel_HandleTypeDef hdfsdm1_channel0;
+DFSDM_Channel_HandleTypeDef hdfsdm1_channel3;
+
 I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c2;
 
@@ -68,6 +71,7 @@ static void MX_I2S3_Init(void);
 static void MX_QUADSPI_Init(void);
 static void MX_SDIO_SD_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_DFSDM1_Init(void);
 void MX_USB_HOST_Process(void);
 
 /* USER CODE BEGIN PFP */
@@ -103,7 +107,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
+#define MX_SDIO_SD_Init()
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -116,8 +120,24 @@ int main(void)
   MX_SDIO_SD_Init();
   MX_USART2_UART_Init();
   MX_USB_HOST_Init();
+  MX_DFSDM1_Init();
   /* USER CODE BEGIN 2 */
 
+#undef MX_SDIO_SD_Init
+  /* Initialize the LCD */
+  BSP_LCD_Init();
+
+  BSP_LCD_SetFont(&LCD_DEFAULT_FONT);
+
+  /* Clear the LCD */
+  BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+  BSP_LCD_Clear(LCD_COLOR_WHITE);
+
+  /* Set the LCD Text Color */
+  BSP_LCD_SetTextColor(LCD_COLOR_DARKBLUE);
+
+  /* Display LCD messages */
+  BSP_LCD_DisplayStringAt(0, 2, (uint8_t *)"STM32F412G BSP", CENTER_MODE);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -179,6 +199,61 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   HAL_RCC_MCOConfig(RCC_MCO1, RCC_MCO1SOURCE_HSI, RCC_MCODIV_1);
+}
+
+/**
+  * @brief DFSDM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_DFSDM1_Init(void)
+{
+
+  /* USER CODE BEGIN DFSDM1_Init 0 */
+
+  /* USER CODE END DFSDM1_Init 0 */
+
+  /* USER CODE BEGIN DFSDM1_Init 1 */
+
+  /* USER CODE END DFSDM1_Init 1 */
+  hdfsdm1_channel0.Instance = DFSDM1_Channel0;
+  hdfsdm1_channel0.Init.OutputClock.Activation = ENABLE;
+  hdfsdm1_channel0.Init.OutputClock.Selection = DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM;
+  hdfsdm1_channel0.Init.OutputClock.Divider = 2;
+  hdfsdm1_channel0.Init.Input.Multiplexer = DFSDM_CHANNEL_EXTERNAL_INPUTS;
+  hdfsdm1_channel0.Init.Input.DataPacking = DFSDM_CHANNEL_STANDARD_MODE;
+  hdfsdm1_channel0.Init.Input.Pins = DFSDM_CHANNEL_SAME_CHANNEL_PINS;
+  hdfsdm1_channel0.Init.SerialInterface.Type = DFSDM_CHANNEL_SPI_RISING;
+  hdfsdm1_channel0.Init.SerialInterface.SpiClock = DFSDM_CHANNEL_SPI_CLOCK_INTERNAL;
+  hdfsdm1_channel0.Init.Awd.FilterOrder = DFSDM_CHANNEL_FASTSINC_ORDER;
+  hdfsdm1_channel0.Init.Awd.Oversampling = 1;
+  hdfsdm1_channel0.Init.Offset = 0;
+  hdfsdm1_channel0.Init.RightBitShift = 0x00;
+  if (HAL_DFSDM_ChannelInit(&hdfsdm1_channel0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  hdfsdm1_channel3.Instance = DFSDM1_Channel3;
+  hdfsdm1_channel3.Init.OutputClock.Activation = ENABLE;
+  hdfsdm1_channel3.Init.OutputClock.Selection = DFSDM_CHANNEL_OUTPUT_CLOCK_SYSTEM;
+  hdfsdm1_channel3.Init.OutputClock.Divider = 2;
+  hdfsdm1_channel3.Init.Input.Multiplexer = DFSDM_CHANNEL_EXTERNAL_INPUTS;
+  hdfsdm1_channel3.Init.Input.DataPacking = DFSDM_CHANNEL_STANDARD_MODE;
+  hdfsdm1_channel3.Init.Input.Pins = DFSDM_CHANNEL_SAME_CHANNEL_PINS;
+  hdfsdm1_channel3.Init.SerialInterface.Type = DFSDM_CHANNEL_SPI_RISING;
+  hdfsdm1_channel3.Init.SerialInterface.SpiClock = DFSDM_CHANNEL_SPI_CLOCK_INTERNAL;
+  hdfsdm1_channel3.Init.Awd.FilterOrder = DFSDM_CHANNEL_FASTSINC_ORDER;
+  hdfsdm1_channel3.Init.Awd.Oversampling = 1;
+  hdfsdm1_channel3.Init.Offset = 0;
+  hdfsdm1_channel3.Init.RightBitShift = 0x00;
+  if (HAL_DFSDM_ChannelInit(&hdfsdm1_channel3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN DFSDM1_Init 2 */
+
+  /* USER CODE END DFSDM1_Init 2 */
+
 }
 
 /**
@@ -427,14 +502,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DFSDM_DATIN3_Pin */
-  GPIO_InitStruct.Pin = DFSDM_DATIN3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF8_DFSDM1;
-  HAL_GPIO_Init(DFSDM_DATIN3_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : LCD_BLCTRL_Pin EXT_RESET_Pin CTP_RST_Pin */
   GPIO_InitStruct.Pin = LCD_BLCTRL_Pin|EXT_RESET_Pin|CTP_RST_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -442,27 +509,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : DFSDM_CKOUT_Pin */
-  GPIO_InitStruct.Pin = DFSDM_CKOUT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF8_DFSDM1;
-  HAL_GPIO_Init(DFSDM_CKOUT_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pin : JOY_SEL_Pin */
   GPIO_InitStruct.Pin = JOY_SEL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(JOY_SEL_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : DFSDM_DATIN0_Pin */
-  GPIO_InitStruct.Pin = DFSDM_DATIN0_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF8_DFSDM1;
-  HAL_GPIO_Init(DFSDM_DATIN0_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : JOY_RIGHT_Pin JOY_LEFT_Pin */
   GPIO_InitStruct.Pin = JOY_RIGHT_Pin|JOY_LEFT_Pin;

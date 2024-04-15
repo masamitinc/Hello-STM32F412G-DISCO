@@ -31,7 +31,13 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stm32412g_discovery.h"
+#include "stm32412g_discovery_lcd.h"
+#include "stm32412g_discovery_sd.h"
+#include "stm32412g_discovery_eeprom.h"
+#include "stm32412g_discovery_audio.h"
+#include "stm32412g_discovery_qspi.h"
+#include "stm32412g_discovery_ts.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
